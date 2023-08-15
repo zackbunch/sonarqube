@@ -11,6 +11,9 @@ import (
 type Config struct {
 	SonarQubeURL string `json:"sonarqube_url"`
 	APIToken     string `json:"api_token"`
+	Username     string `json:"username"`
+	Password     string `json:"password"`
+	UseBasicAuth bool   `json:"use_basic_auth"`
 }
 
 type AuthenticationResponse struct {
@@ -38,7 +41,11 @@ func main() {
 		return
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.APIToken))
+	if config.UseBasicAuth {
+		req.SetBasicAuth(config.Username, config.Password)
+	} else {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.APIToken))
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
