@@ -13,6 +13,10 @@ type Config struct {
 	APIToken     string `json:"api_token"`
 }
 
+type AuthenticationResponse struct {
+	Valid bool `json:"valid"`
+}
+
 func main() {
 	config, err := loadConfig("config.json")
 	if err != nil {
@@ -44,11 +48,28 @@ func main() {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Authentication failed with status:", resp.Status)
+		fmt.Println("Authentication request failed with status:", resp.Status)
 		return
 	}
 
-	fmt.Println("Authentication successful!")
+	var authResponse AuthenticationResponse
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		return
+	}
+
+	err = json.Unmarshal(body, &authResponse)
+	if err != nil {
+		fmt.Println("Error decoding response JSON:", err)
+		return
+	}
+
+	if authResponse.Valid {
+		fmt.Println("Authentication successful!")
+	} else {
+		fmt.Println("Authentication failed: Invalid credentials")
+	}
 }
 
 func loadConfig(filename string) (Config, error) {
