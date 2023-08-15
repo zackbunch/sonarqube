@@ -44,6 +44,7 @@ func main() {
 	if config.UseBasicAuth {
 		req.SetBasicAuth(config.Username, config.Password)
 	} else {
+		fmt.Println("Using API Token:", config.APIToken) // Add this line
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.APIToken))
 	}
 
